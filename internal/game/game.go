@@ -3,14 +3,14 @@ package game
 import (
 	"fmt"
 
-	"github.com/mavrw/terminally-idle/internal/models"
+	"github.com/mavrw/terminally-idle/internal/tui/models"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type gameInstance struct {
 	application *tea.Program
-	model       models.GameModel
+	model       models.GameAppModel
 }
 
 func NewGame(title string) *gameInstance {
