@@ -26,13 +26,13 @@ func NewGameModel(title string) GameAppModel {
 	}
 }
 
-func (m *GameAppModel) ToggleDebugMode() {
-	m.debugMode = !m.debugMode
+func (m *GameAppModel) ToggleDebugMode(b bool) {
+	m.debugMode = b
 }
 
 func (m GameAppModel) Init() tea.Cmd {
-	// No I/O needed currently, return nil
-	return nil
+	// Set initial state main menu
+	return commands.ChangeApplicationState(constants.MAIN_MENU)
 }
 
 func (m GameAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -42,7 +42,7 @@ func (m GameAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	// Keybinding to reset to initial state for debug purposes
-	if mes, ok := msg.(tea.KeyMsg); ok && key.Matches(mes, constants.KeyMap.DEBUG_RESET) {
+	if mes, ok := msg.(tea.KeyMsg); ok && key.Matches(mes, constants.KeyMap.DEBUG_RESET) && m.debugMode {
 		return m, commands.ChangeApplicationState(constants.INITIAL_STATE)
 	}
 
@@ -50,7 +50,9 @@ func (m GameAppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case messages.ChangeStateMsg:
 		m.changeGameState(msg.State)
-		fmt.Printf("ChangeStateMsg: %v", msg)
+		if m.currentGameState != constants.INITIAL_STATE {
+			return m, m.states[m.currentGameState].Init()
+		}
 	}
 
 	// Forwards msg to current state model
@@ -87,10 +89,14 @@ func (m GameAppModel) View() string {
 		}
 	}
 
-	// Header
-	s := fmt.Sprintf("%s Debug Menu\n\n\n", m.title)
+	var s string
 
-	s += fmt.Sprintf("GameState: %d\n\n\n\n", m.currentGameState)
+	if m.debugMode {
+		// Header
+		s += fmt.Sprintf("%s Debug Menu\n\n\n", m.title)
+
+		s += fmt.Sprintf("GameState: %d\n\n\n\n", m.currentGameState)
+	}
 
 	s += "Press CTRL+C to exit..."
 
@@ -109,8 +115,8 @@ func initializeGameStates() map[constants.GameState]tea.Model {
 				Cmd:   commands.ChangeApplicationState(constants.IDLE),
 			},
 			{
-				Label: "INITIAL_STATE",
-				Cmd:   commands.ChangeApplicationState(constants.INITIAL_STATE),
+				Label: "Settings",
+				Cmd:   nil,
 			},
 			{
 				Label: "Exit",

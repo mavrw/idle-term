@@ -2,9 +2,9 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mavrw/terminally-idle/internal/tui/commands"
 	"github.com/mavrw/terminally-idle/internal/tui/constants"
 )
 
@@ -28,6 +28,7 @@ func NewMainMenu(title string, opts []MenuOption) tea.Model {
 }
 
 func (m MainMenuModel) Init() tea.Cmd {
+	// fmt.Print("\007")
 	return nil
 }
 
@@ -45,10 +46,6 @@ func (m MainMenuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case key.Matches(msg, constants.KeyMap.Enter):
 			return m, m.options[m.optionsIndex].Cmd
-
-		// Return to the initial state for testing purposes
-		case key.Matches(msg, constants.KeyMap.Back):
-			return m, commands.ChangeApplicationState(constants.INITIAL_STATE)
 		}
 	}
 

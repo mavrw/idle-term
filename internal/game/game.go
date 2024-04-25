@@ -8,15 +8,22 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type GameConfig struct {
+	Title     string
+	DebugMode bool
+}
+
 type gameInstance struct {
 	application *tea.Program
 	model       models.GameAppModel
 }
 
-func NewGame(title string) *gameInstance {
-	return &gameInstance{
-		model: models.NewGameModel(title),
+func NewGame(config GameConfig) *gameInstance {
+	instance := &gameInstance{
+		model: models.NewGameModel(config.Title),
 	}
+	instance.model.ToggleDebugMode(config.DebugMode)
+	return instance
 }
 
 func (g *gameInstance) StartGame() {
