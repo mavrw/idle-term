@@ -47,8 +47,8 @@ var KeyMap = keyMap{
 		key.WithHelp("enter", "select"),
 	),
 	Back: key.NewBinding( //? Use for menu tho???
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "back"),
+		key.WithKeys("back"),
+		key.WithHelp("back", "back"),
 	),
 	Numbers: key.NewBinding(
 		key.WithKeys("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"),
