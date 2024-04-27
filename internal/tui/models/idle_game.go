@@ -18,6 +18,8 @@ type ResourceGenerator struct {
 	productionRate       int     // productions per second
 	productionMultiplier float64 // to productionAmount
 	quantity             int     // number of generators
+	lastProductionTime   int
+	baseProfit           int
 }
 
 type IdleGameModel struct {
@@ -48,6 +50,7 @@ func NewIdleGameModel() tea.Model {
 				productionRate:       2,
 				productionMultiplier: 1,
 				quantity:             1,
+				baseProfit:           1,
 			},
 			{
 				name:                 "Ransomware Operations",
@@ -56,6 +59,7 @@ func NewIdleGameModel() tea.Model {
 				productionRate:       1,
 				productionMultiplier: 1,
 				quantity:             1,
+				baseProfit:           2,
 			},
 			{
 				name:                 "Transaction Leech",
@@ -64,6 +68,7 @@ func NewIdleGameModel() tea.Model {
 				productionRate:       8,
 				productionMultiplier: 1,
 				quantity:             1,
+				baseProfit:           4,
 			},
 			{
 				name:                 "Password Hash Cracking",
@@ -72,6 +77,7 @@ func NewIdleGameModel() tea.Model {
 				productionRate:       1,
 				productionMultiplier: 1,
 				quantity:             1,
+				baseProfit:           6,
 			},
 		},
 		generatorViewPort: viewport.New(48, 24),
@@ -138,16 +144,24 @@ func (m IdleGameModel) View() string {
 
 func (m *IdleGameModel) update() {
 	t := time.Now().UnixMilli() - m.lastIncrementTime
+	var profit int
 	if t >= 1000/m.incrementRate {
-		m.currency += m.incrementAmount
-		m.lastIncrementTime = time.Now().UnixMilli()
+		// m.currency += m.incrementAmount
+		// m.lastIncrementTime = time.Now().UnixMilli()
+		for _, gen := range m.generators {
+			if t >= 1000/int64(gen.productionRate) {
+				profit += (gen.productionAmount * gen.baseProfit) * int(gen.productionMultiplier)
+			}
+		}
 	}
+	m.currency += float64(profit)
 }
 
 func getStringFromGenerators(rg []ResourceGenerator) string {
 	var s string
 	for _, gen := range rg {
-		s += fmt.Sprintf("%v x%v\t%v/s\n", gen.name, gen.quantity, gen.productionAmount*gen.productionRate)
+		s += fmt.Sprintf("%v x%v", gen.name, gen.quantity)
+		s += fmt.Sprintf("%v/s\n", gen.productionAmount*gen.productionRate)
 	}
 
 	return s
