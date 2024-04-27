@@ -11,7 +11,14 @@ import (
 	"github.com/mavrw/terminally-idle/internal/tui/constants"
 )
 
-type resourceGenerator string
+type ResourceGenerator struct {
+	name                 string
+	desc                 string
+	productionAmount     int     // per production
+	productionRate       int     // productions per second
+	productionMultiplier float64 // to productionAmount
+	quantity             int     // number of generators
+}
 
 type IdleGameModel struct {
 	currency            float64 // Using floats for now because precision shouldn't be an issue
@@ -22,7 +29,7 @@ type IdleGameModel struct {
 	startTime           int64
 	timeElapsed         int64
 	lastIncrementTime   int64
-	generators          []resourceGenerator
+	generators          []ResourceGenerator
 	generatorViewPort   viewport.Model
 }
 
@@ -33,12 +40,41 @@ func NewIdleGameModel() tea.Model {
 		incrementAmount:     0.1,
 		incrementMultiplier: 1,
 		timer:               stopwatch.NewWithInterval(time.Microsecond),
-		generators: []resourceGenerator{
-			"Crypto Miners",
-			"Ransomware Gangs",
-			"Chinese Child Slaves",
+		generators: []ResourceGenerator{
+			{
+				name:                 "Crypto Jacker",
+				desc:                 "Machines infected with malware that mines bitcoins using the host's hardware.",
+				productionAmount:     1,
+				productionRate:       2,
+				productionMultiplier: 1,
+				quantity:             1,
+			},
+			{
+				name:                 "Ransomware Operations",
+				desc:                 "Develop and lease ransomware toolkits to cyber-gangs and receive a cut for passive income.",
+				productionAmount:     3,
+				productionRate:       1,
+				productionMultiplier: 1,
+				quantity:             1,
+			},
+			{
+				name:                 "Transaction Leech",
+				desc:                 "A worm that burrows into corporate networks and siphons fractions of a cent off each transaction, remaining undetected while leeching in a significant amount of money.",
+				productionAmount:     1,
+				productionRate:       8,
+				productionMultiplier: 1,
+				quantity:             1,
+			},
+			{
+				name:                 "Password Hash Cracking",
+				desc:                 "Leverage immense computing power for bruteforce database dumps and crack passwords to sell them in batches on the darknet.",
+				productionAmount:     12,
+				productionRate:       1,
+				productionMultiplier: 1,
+				quantity:             1,
+			},
 		},
-		generatorViewPort: viewport.New(16, 24),
+		generatorViewPort: viewport.New(48, 24),
 	}
 
 	return m
@@ -108,10 +144,10 @@ func (m *IdleGameModel) update() {
 	}
 }
 
-func getStringFromGenerators(rg []resourceGenerator) string {
+func getStringFromGenerators(rg []ResourceGenerator) string {
 	var s string
 	for _, gen := range rg {
-		s += fmt.Sprintf("%v\n", gen)
+		s += fmt.Sprintf("%v x%v\t%v/s\n", gen.name, gen.quantity, gen.productionAmount*gen.productionRate)
 	}
 
 	return s
